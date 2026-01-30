@@ -36,7 +36,7 @@ const App: React.FC = () => {
     }
   }, [currentUser?.theme]);
 
-  // Sync user profile from DB to catch real-time bans/notices
+  // Sync user profile from DB to catch real-time updates
   useEffect(() => {
     const syncWithDb = () => {
       if (currentUser) {
@@ -90,26 +90,6 @@ const App: React.FC = () => {
     return <LoginView onLoginSuccess={handleLogin} />;
   }
 
-  // Banned UI Overlay
-  if (currentUser.isBanned && currentUser.role !== 'ADMIN') {
-    return (
-      <div className="min-h-screen w-full bg-[#05070a] flex items-center justify-center p-6 text-center">
-        <div className="max-w-md w-full bg-rose-500/5 border border-rose-500/20 p-12 rounded-[3rem] glass">
-          <div className="w-24 h-24 bg-rose-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(244,63,94,0.4)]">
-            <i className="fas fa-user-slash text-4xl text-white"></i>
-          </div>
-          <h1 className="text-3xl font-black text-white tracking-tighter uppercase mb-4">Access Revoked</h1>
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px] leading-relaxed mb-10">
-            Your identity node has been suspended by the management. Please contact your nearest GreenPoints terminal for verification.
-          </p>
-          <button onClick={handleLogout} className="w-full py-5 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-white/10 transition-all">
-            Return to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const renderView = () => {
     switch (activeView) {
       case ViewType.SETTINGS:
@@ -139,12 +119,14 @@ const App: React.FC = () => {
   const displayAvatar = currentUser.profileImage || avatarFallback;
 
   return (
-    <div className={`flex h-[100dvh] w-full transition-colors duration-500 overflow-hidden ${currentUser.theme === 'LIGHT' ? 'bg-[#f8fafc]' : 'bg-[#05070a]'}`}>
+    <div className={`flex h-screen w-full transition-colors duration-500 overflow-hidden ${currentUser.theme === 'LIGHT' ? 'bg-[#f8fafc]' : 'bg-[#05070a]'}`}>
+      {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
-        <div className="fixed inset-0 bg-black/80 z-[60] md:hidden backdrop-blur-md" onClick={() => setSidebarOpen(false)}></div>
+        <div className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm transition-opacity" onClick={() => setSidebarOpen(false)}></div>
       )}
 
-      <div className={`fixed inset-y-0 left-0 z-[70] transition-transform duration-500 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      {/* Sidebar - Fixed on Large Screens */}
+      <div className={`fixed inset-y-0 left-0 z-50 transform lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Sidebar 
           activeView={activeView} 
           onViewChange={(view) => { setActiveView(view); setSidebarOpen(false); }} 
@@ -155,40 +137,39 @@ const App: React.FC = () => {
         />
       </div>
       
-      <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-10 relative z-10 w-full custom-scrollbar">
-        <div className="max-w-[1600px] mx-auto min-h-full flex flex-col">
-          <header className="mb-6 md:mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center justify-between w-full md:w-auto">
-              <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-1">
-                  <div className={`w-2 h-2 rounded-full shadow-[0_0_10px_currentColor] animate-pulse ${currentUser.role === 'ADMIN' ? 'text-indigo-500 bg-indigo-500' : 'text-emerald-500 bg-emerald-500'}`}></div>
-                  <p className={`text-[9px] font-black uppercase tracking-[0.2em] mono ${currentUser.role === 'ADMIN' ? (currentUser.theme === 'LIGHT' ? 'text-indigo-600' : 'text-indigo-400') : (currentUser.theme === 'LIGHT' ? 'text-emerald-600' : 'text-emerald-500')}`}>
-                    {currentUser.role} NODE: ONLINE
-                  </p>
-                </div>
-                <h1 className={`text-xl md:text-5xl font-black tracking-tighter leading-tight uppercase truncate ${currentUser.theme === 'LIGHT' ? 'text-slate-900' : 'text-white'}`}>
-                  {activeView.replace('_', ' ')}
-                </h1>
-              </div>
-              
-              <button onClick={() => setSidebarOpen(true)} className={`md:hidden ml-4 w-12 h-12 rounded-2xl border flex items-center justify-center text-xl shadow-lg active:scale-90 transition-transform ${currentUser.theme === 'LIGHT' ? 'bg-white border-slate-200 text-slate-800' : 'bg-white/5 border-white/10 text-white'}`}>
-                <i className="fas fa-bars-staggered"></i>
-              </button>
-            </div>
-            
-            <div className={`flex items-center space-x-3 md:space-x-6 border p-1.5 pr-4 rounded-2xl md:rounded-3xl glass self-end md:self-auto shadow-xl ${currentUser.theme === 'LIGHT' ? 'bg-white/80 border-slate-200' : 'bg-[#0f1115] border-white/5'}`}>
-              <img src={displayAvatar} className={`w-8 h-8 md:w-12 md:h-12 rounded-xl md:rounded-2xl border-2 object-cover ${currentUser.theme === 'LIGHT' ? 'border-slate-100 bg-slate-100' : 'border-[#05070a] bg-[#1e293b]'}`} alt="Profile" />
-              <div className={`h-6 md:h-8 w-[1px] ${currentUser.theme === 'LIGHT' ? 'bg-slate-200' : 'bg-white/10'}`}></div>
-              <div className="flex flex-col items-end">
-                <span className={`text-[10px] md:text-sm font-bold tracking-wide truncate max-w-[100px] ${currentUser.theme === 'LIGHT' ? 'text-slate-800' : 'text-white'}`}>{currentUser.name}</span>
-                <span className={`text-[8px] md:text-[10px] font-bold uppercase tracking-tighter ${currentUser.role === 'ADMIN' ? (currentUser.theme === 'LIGHT' ? 'text-indigo-600' : 'text-indigo-400') : (currentUser.theme === 'LIGHT' ? 'text-emerald-600' : 'text-emerald-400')}`}>
-                  {currentUser.id}
-                </span>
+      {/* Main Content Area - Expansive Desktop Experience */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        {/* Modern Header - Edge to Edge with Balanced Padding */}
+        <header className={`flex items-center justify-between px-6 py-4 md:px-10 xl:px-16 md:py-6 border-b z-30 sticky top-0 backdrop-blur-md ${currentUser.theme === 'LIGHT' ? 'bg-white/80 border-slate-200 shadow-sm' : 'bg-[#05070a]/80 border-white/5'}`}>
+          <div className="flex items-center space-x-4">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-white/5 border border-white/10 hover:bg-white/10">
+              <i className="fas fa-bars-staggered"></i>
+            </button>
+            <div className="flex flex-col">
+              <h1 className={`text-lg md:text-2xl xl:text-3xl font-black uppercase tracking-tighter ${currentUser.theme === 'LIGHT' ? 'text-slate-900' : 'text-white'}`}>
+                {activeView.replace('_', ' ')}
+              </h1>
+              <div className="flex items-center space-x-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <p className="text-[8px] md:text-[9px] xl:text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                  Active Session: {currentUser.id}
+                </p>
               </div>
             </div>
-          </header>
+          </div>
 
-          <div className="pb-32 md:pb-20 flex-1">
+          <div className="flex items-center space-x-3 md:space-x-8">
+            <div className="hidden sm:flex flex-col items-end">
+              <span className={`text-xs xl:text-sm font-black ${currentUser.theme === 'LIGHT' ? 'text-slate-800' : 'text-white'}`}>{currentUser.name}</span>
+              <span className={`text-[8px] xl:text-[9px] font-bold uppercase tracking-widest ${currentUser.role === 'ADMIN' ? 'text-indigo-500' : 'text-emerald-500'}`}>{currentUser.role} STATUS</span>
+            </div>
+            <img src={displayAvatar} className={`w-10 h-10 md:w-14 md:h-14 rounded-2xl border-2 object-cover transition-transform hover:scale-105 cursor-pointer ${currentUser.theme === 'LIGHT' ? 'border-slate-100 bg-slate-100 shadow-md' : 'border-[#1e293b] bg-[#1e293b]'}`} alt="Profile" />
+          </div>
+        </header>
+
+        {/* Dynamic View Content - Full Responsive Space (No max-width) */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-10 lg:p-12 xl:p-16">
+          <div className="w-full">
             {renderView()}
           </div>
         </div>
