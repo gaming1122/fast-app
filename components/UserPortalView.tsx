@@ -76,29 +76,6 @@ const UserPortalView: React.FC<UserPortalViewProps> = ({ user: initialUser, onUp
     }, 2500);
   }, [user, onUpdate]);
 
-  const startScanner = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
-      });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        setIsScanning(true);
-      }
-    } catch (err) {
-      setError('Camera access denied.');
-    }
-  };
-
-  const stopScanner = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    setIsScanning(false);
-  };
-
   const connectBluetooth = async () => {
     if (!(navigator as any).bluetooth) {
       setError('Bluetooth unsupported.');
@@ -148,167 +125,166 @@ const UserPortalView: React.FC<UserPortalViewProps> = ({ user: initialUser, onUp
   const isLight = user.theme === 'LIGHT';
 
   return (
-    <div className="space-y-8 md:space-y-16 animate-in slide-in-from-bottom-6 duration-700 relative pb-24 w-full">
+    <div className="space-y-6 md:space-y-10 animate-in slide-in-from-bottom-6 duration-700 relative pb-20 w-full">
       
       {showXpPopup && (
         <div className="xp-popup pointer-events-none">
-          <div className="bg-emerald-500 text-slate-900 px-10 py-5 rounded-full font-black shadow-[0_0_60px_rgba(16,185,129,0.8)] flex flex-col items-center border-4 border-white/30 scale-125">
-            <div className="flex items-center space-x-3">
+          <div className="bg-emerald-500 text-slate-900 px-8 py-4 rounded-full font-black shadow-[0_0_50px_rgba(16,185,129,0.8)] flex flex-col items-center border-4 border-white/30 scale-110">
+            <div className="flex items-center space-x-2">
               <i className="fas fa-bolt"></i>
-              <span className="text-2xl uppercase">+25 XP EARNED</span>
+              <span className="text-xl uppercase">+25 XP EARNED</span>
             </div>
             <div className="h-[1px] w-full bg-black/10 my-1"></div>
-            <span className="text-[10px] uppercase tracking-widest font-bold opacity-80">ESP32 SIGNAL INGESTED</span>
+            <span className="text-[9px] uppercase tracking-widest font-bold opacity-80">ESP32 SIGNAL INGESTED</span>
           </div>
         </div>
       )}
 
-      {/* Main Grid - Ultra Wide Desktop Focus */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 2xl:grid-cols-5 gap-8 lg:gap-12">
+      {/* Main Grid - Optimized scaling for desktop */}
+      <div className="grid grid-cols-1 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8">
         
-        {/* Profile Card & Stats (Spans 3/5 on large screens) */}
-        <div className={`xl:col-span-3 2xl:col-span-4 p-8 md:p-16 rounded-[3rem] md:rounded-[4.5rem] border relative overflow-hidden shadow-2xl transition-all duration-500 ${isLight ? 'bg-white border-slate-100' : 'bg-[#0f1115] border-white/5 glass'}`}>
-          <div className={`absolute top-0 right-0 w-80 h-80 md:w-[600px] md:h-[600px] rounded-full blur-[100px] md:blur-[180px] transition-all duration-1000 ${pulse ? 'bg-emerald-500/30 scale-125' : 'bg-emerald-500/5'}`}></div>
+        {/* Profile Card & Stats */}
+        <div className={`xl:col-span-3 2xl:col-span-4 p-6 md:p-10 xl:p-12 rounded-[2.5rem] md:rounded-[3.5rem] border relative overflow-hidden shadow-2xl transition-all duration-500 ${isLight ? 'bg-white border-slate-100' : 'bg-[#0f1115] border-white/5 glass'}`}>
+          <div className={`absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 rounded-full blur-[80px] md:blur-[140px] transition-all duration-1000 ${pulse ? 'bg-emerald-500/25 scale-125' : 'bg-emerald-500/5'}`}></div>
           
-          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10 lg:gap-24 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-16 relative z-10">
             <div className="relative group shrink-0">
-              <div className={`absolute inset-0 rounded-[3rem] md:rounded-[4.5rem] blur-2xl transition-all duration-500 ${pulse ? 'bg-emerald-500/40 scale-110' : 'bg-emerald-500/10'}`}></div>
+              <div className={`absolute inset-0 rounded-[2.5rem] md:rounded-[3.5rem] blur-xl transition-all duration-500 ${pulse ? 'bg-emerald-500/30 scale-110' : 'bg-emerald-500/10'}`}></div>
               <img 
                 src={user.profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} 
-                className={`w-48 h-48 md:w-80 md:h-80 rounded-[3.5rem] md:rounded-[5rem] border-8 relative z-10 object-cover transition-all duration-700 shadow-[0_40px_80px_rgba(0,0,0,0.5)] ${isLight ? 'bg-slate-50 border-white' : 'bg-[#05070a] border-white/10'} ${animating ? 'scale-105 rotate-1' : ''}`} 
+                className={`w-36 h-36 md:w-56 md:h-56 xl:w-64 xl:h-64 rounded-[2.5rem] md:rounded-[3.5rem] border-4 relative z-10 object-cover transition-all duration-700 shadow-2xl ${isLight ? 'bg-slate-50 border-white' : 'bg-[#05070a] border-white/10'} ${animating ? 'scale-105' : ''}`} 
                 alt="Profile"
               />
             </div>
             
             <div className="flex-1 text-center lg:text-left w-full">
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-10">
-                <span className={`px-6 md:px-8 py-3 ${rank.bg} ${rank.color} border ${rank.border} rounded-full text-[11px] md:text-[14px] font-black uppercase tracking-[0.2em] flex items-center shadow-lg`}>
-                  <i className="fas fa-trophy mr-3"></i> {rank.title}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-6 xl:mb-8">
+                <span className={`px-5 py-2 ${rank.bg} ${rank.color} border ${rank.border} rounded-full text-[10px] xl:text-[12px] font-black uppercase tracking-[0.15em] flex items-center shadow-md`}>
+                  <i className="fas fa-trophy mr-2 text-xs"></i> {rank.title}
                 </span>
-                <div className={`flex items-center space-x-3 px-6 py-3 rounded-full border transition-all ${isBleConnected ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' : 'bg-rose-500/10 border-rose-500/30 text-rose-500'} text-[11px] md:text-[14px] font-black uppercase tracking-tighter shadow-lg`}>
-                  <div className={`w-3 h-3 rounded-full ${isBleConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></div>
-                  <span>LINK: {bleStatus}</span>
+                <div className={`flex items-center space-x-2 px-5 py-2 rounded-full border transition-all ${isBleConnected ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' : 'bg-rose-500/10 border-rose-500/30 text-rose-500'} text-[10px] xl:text-[12px] font-black uppercase tracking-tighter shadow-md`}>
+                  <div className={`w-2.5 h-2.5 rounded-full ${isBleConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></div>
+                  <span>NODE: {bleStatus}</span>
                 </div>
               </div>
               
-              <h2 className={`text-5xl md:text-[10rem] font-black tracking-tighter mb-12 leading-none truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{user.name}</h2>
+              <h2 className={`text-4xl md:text-6xl xl:text-7xl font-black tracking-tighter mb-10 leading-none truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{user.name}</h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 md:gap-16">
-                <div className={`p-10 md:p-20 rounded-[3rem] md:rounded-[4rem] border transition-all duration-700 ${isLight ? 'bg-slate-50 border-slate-100 shadow-sm' : 'bg-black/40 border-white/5 shadow-2xl'} ${animating ? 'scale-105 border-emerald-500/50' : ''}`}>
-                  <p className="text-[11px] md:text-[16px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 md:mb-8">Accumulated XP</p>
-                  <p className={`text-5xl md:text-[10rem] font-black tracking-tighter mono leading-none ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>{user.points}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+                <div className={`p-8 md:p-12 rounded-[2.5rem] border transition-all duration-700 ${isLight ? 'bg-slate-50 border-slate-100 shadow-sm' : 'bg-black/40 border-white/5 shadow-2xl'} ${animating ? 'scale-105 border-emerald-500/40' : ''}`}>
+                  <p className="text-[10px] md:text-[13px] font-black text-slate-500 uppercase tracking-[0.25em] mb-4 md:mb-6">Sustainability XP</p>
+                  <p className={`text-4xl md:text-6xl xl:text-7xl font-black tracking-tighter mono leading-none ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>{user.points}</p>
                 </div>
-                <div className={`p-10 md:p-20 rounded-[3rem] md:rounded-[4rem] border transition-all duration-700 ${isLight ? 'bg-slate-50 border-slate-100 shadow-sm' : 'bg-black/40 border-white/5 shadow-2xl'}`}>
-                  <p className="text-[11px] md:text-[16px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 md:mb-8">Verified Items</p>
-                  <p className={`text-5xl md:text-[10rem] font-black tracking-tighter mono leading-none ${isLight ? 'text-slate-900' : 'text-white'}`}>{user.bottles}</p>
+                <div className={`p-8 md:p-12 rounded-[2.5rem] border transition-all duration-700 ${isLight ? 'bg-slate-50 border-slate-100 shadow-sm' : 'bg-black/40 border-white/5 shadow-2xl'}`}>
+                  <p className="text-[10px] md:text-[13px] font-black text-slate-500 uppercase tracking-[0.25em] mb-4 md:mb-6">Collected Units</p>
+                  <p className={`text-4xl md:text-6xl xl:text-7xl font-black tracking-tighter mono leading-none ${isLight ? 'text-slate-900' : 'text-white'}`}>{user.bottles}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className={`mt-12 p-8 md:p-14 rounded-[3rem] md:rounded-[4rem] border relative z-10 transition-colors ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-black/40 border-white/5'}`}>
-             <div className="flex items-center justify-between mb-10">
-                <h4 className="text-[12px] md:text-[16px] font-black text-slate-400 uppercase tracking-[0.4em] flex items-center">
-                  <span className="w-4 h-4 rounded-full bg-emerald-500 mr-5 animate-pulse shadow-[0_0_15px_#10b981]"></span>
-                  Neural Handshake Traffic
+          <div className={`mt-10 p-6 md:p-10 rounded-[2.5rem] border relative z-10 transition-colors ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-black/40 border-white/5'}`}>
+             <div className="flex items-center justify-between mb-8">
+                <h4 className="text-[11px] md:text-[13px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center">
+                  <span className="w-3 h-3 rounded-full bg-emerald-500 mr-4 animate-pulse shadow-[0_0_10px_#10b981]"></span>
+                  Live IoT Traffic
                 </h4>
                 <button 
                   onClick={() => handleReward(1)} 
-                  className={`text-[10px] md:text-[12px] font-black uppercase tracking-widest mono transition-all border px-6 py-3 rounded-2xl ${isLight ? 'text-slate-400 border-slate-200 hover:text-emerald-600 hover:border-emerald-500' : 'text-slate-700 border-white/10 hover:text-emerald-500 hover:border-emerald-500/50'}`}
+                  className={`text-[9px] xl:text-[10px] font-black uppercase tracking-widest mono transition-all border px-4 py-2 rounded-xl ${isLight ? 'text-slate-400 border-slate-200 hover:text-emerald-600 hover:border-emerald-500' : 'text-slate-700 border-white/10 hover:text-emerald-500 hover:border-emerald-500/50'}`}
                 >
-                  [ FORCED SIGNAL EMISSION ]
+                  [ SIMULATE 'B' ]
                 </button>
              </div>
-             <div className="space-y-4 max-h-[250px] overflow-y-auto custom-scrollbar pr-6">
+             <div className="space-y-3 max-h-[180px] overflow-y-auto custom-scrollbar pr-4">
                 {signalLog.length > 0 ? signalLog.map((log, i) => (
-                  <div key={i} className={`flex justify-between items-center text-[14px] md:text-[18px] mono animate-in slide-in-from-left-4 duration-500 ${i === 0 ? (isLight ? 'text-emerald-600 font-black' : 'text-emerald-400') : 'text-slate-500 opacity-60'}`}>
+                  <div key={i} className={`flex justify-between items-center text-[13px] md:text-[15px] mono animate-in slide-in-from-left-4 duration-500 ${i === 0 ? (isLight ? 'text-emerald-600 font-black' : 'text-emerald-400') : 'text-slate-500 opacity-60'}`}>
                     <div className="flex items-center">
-                       <i className={`fas ${i === 0 ? 'fa-bolt-lightning mr-6 scale-125' : 'fa-check-circle mr-6 opacity-50'}`}></i>
+                       <i className={`fas ${i === 0 ? 'fa-bolt-lightning mr-4' : 'fa-check-circle mr-4 opacity-50'}`}></i>
                        <span>{log.msg}</span>
                     </div>
-                    <span className="text-[12px] font-bold opacity-30 tracking-widest">{log.time}</span>
+                    <span className="text-[11px] font-bold opacity-30 tracking-widest">{log.time}</span>
                   </div>
                 )) : (
-                  <div className="text-center py-16 text-slate-500 font-black uppercase tracking-[0.5em] text-[12px] italic opacity-30">Awaiting Edge Node Stream Handshake...</div>
+                  <div className="text-center py-10 text-slate-500 font-black uppercase tracking-[0.3em] text-[10px] italic opacity-30">Awaiting Signal...</div>
                 )}
              </div>
           </div>
         </div>
 
-        {/* Security Hub Panel (Spans 1/5) */}
-        <div className={`xl:col-span-1 2xl:col-span-1 p-8 md:p-14 rounded-[3rem] md:rounded-[4rem] shadow-2xl flex flex-col items-center text-center transition-all duration-500 h-full ${isLight ? 'bg-white border border-slate-100' : 'bg-[#0f1115] border border-white/5 glass'}`}>
-           <div className="mb-12 w-full">
-             <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.6em] mb-4">Security Protocol</p>
-             <div className="h-[3px] w-24 bg-emerald-500 mx-auto rounded-full shadow-[0_0_15px_#10b981]"></div>
+        {/* Security Hub Panel */}
+        <div className={`xl:col-span-1 2xl:col-span-1 p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl flex flex-col items-center text-center transition-all duration-500 h-full ${isLight ? 'bg-white border border-slate-100' : 'bg-[#0f1115] border border-white/5 glass'}`}>
+           <div className="mb-10 w-full">
+             <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.5em] mb-3">Security</p>
+             <div className="h-[2px] w-16 bg-emerald-500 mx-auto rounded-full shadow-[0_0_10px_#10b981]"></div>
            </div>
            
-           <div className="flex-1 w-full flex flex-col justify-center min-h-[400px]">
+           <div className="flex-1 w-full flex flex-col justify-center min-h-[350px]">
              {!qrUnlocked ? (
-               <div className="w-full space-y-8">
-                  <div className={`p-10 md:p-12 rounded-[3.5rem] flex flex-col items-center space-y-8 shadow-inner ${isLight ? 'bg-slate-50' : 'bg-[#05070a]'}`}>
+               <div className="w-full space-y-6">
+                  <div className={`p-8 rounded-[2.5rem] flex flex-col items-center space-y-6 shadow-inner ${isLight ? 'bg-slate-50' : 'bg-[#05070a]'}`}>
                     <input 
                       type="password" 
-                      placeholder="ENTER PIN"
+                      placeholder="PIN"
                       value={passwordAttempt}
                       onChange={e => setPasswordAttempt(e.target.value)}
-                      className={`w-full border rounded-3xl py-7 px-8 text-center text-2xl outline-none transition-all font-black tracking-[0.8em] ${isLight ? 'bg-white border-slate-200 text-slate-800 focus:border-emerald-500 shadow-md' : 'bg-black/60 border-white/5 text-white focus:border-emerald-500/50'}`}
+                      className={`w-full border rounded-2xl py-5 px-6 text-center text-xl outline-none transition-all font-black tracking-[0.6em] ${isLight ? 'bg-white border-slate-200 text-slate-800 focus:border-emerald-500 shadow-sm' : 'bg-black/60 border-white/5 text-white focus:border-emerald-500/50'}`}
                     />
                     <button 
                       onClick={() => {
                         const db = JSON.parse(localStorage.getItem('gp_database') || '{"ADMIN": {}, "USER": {}}');
                         if (db.USER[user.id]?.password === passwordAttempt) setQrUnlocked(true);
-                        else setError('ACCESS_DENIED: PIN MISMATCH');
+                        else setError('ACCESS_DENIED');
                       }}
-                      className="w-full py-7 bg-emerald-500 text-slate-900 rounded-[2rem] text-[14px] font-black uppercase tracking-[0.2em] hover:bg-emerald-400 active:scale-95 transition-all shadow-[0_20px_40px_rgba(16,185,129,0.3)]"
+                      className="w-full py-5 bg-emerald-500 text-slate-900 rounded-[1.5rem] text-[12px] font-black uppercase tracking-[0.2em] hover:bg-emerald-400 active:scale-95 transition-all shadow-lg"
                     >
-                      UNVLOCK WALLET
+                      UNLOCK
                     </button>
-                    {error && <p className="text-rose-500 text-[11px] font-black uppercase tracking-widest animate-shake"><i className="fas fa-triangle-exclamation mr-2"></i>{error}</p>}
+                    {error && <p className="text-rose-500 text-[9px] font-black uppercase tracking-widest animate-shake">{error}</p>}
                   </div>
                </div>
              ) : (
-               <div className={`w-full max-w-[380px] aspect-square p-10 rounded-[4rem] mx-auto relative overflow-hidden animate-in zoom-in-95 duration-700 shadow-[0_50px_100px_rgba(0,0,0,0.6)] ${isLight ? 'bg-slate-50' : 'bg-[#05070a]'}`}>
+               <div className={`w-full max-w-[280px] aspect-square p-8 rounded-[3rem] mx-auto relative overflow-hidden animate-in zoom-in-95 duration-700 shadow-2xl ${isLight ? 'bg-slate-50' : 'bg-[#05070a]'}`}>
                   <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(loginUrl)}&bgcolor=${isLight ? 'f8fafc' : '05070a'}&color=10b981`} 
-                    alt="Wallet Identity" 
-                    className="w-full h-full relative z-10 p-4"
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(loginUrl)}&bgcolor=${isLight ? 'f8fafc' : '05070a'}&color=10b981`} 
+                    alt="Identity" 
+                    className="w-full h-full relative z-10 p-2"
                   />
-                  <button onClick={() => setQrUnlocked(false)} className={`absolute bottom-8 right-8 z-20 w-16 h-16 rounded-[1.5rem] border flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${isLight ? 'bg-white border-slate-200 text-slate-400 hover:text-emerald-500 shadow-xl' : 'bg-black/95 border-emerald-500/30 text-emerald-500 shadow-2xl'}`}>
-                    <i className="fas fa-lock-open text-xl"></i>
+                  <button onClick={() => setQrUnlocked(false)} className={`absolute bottom-6 right-6 z-20 w-12 h-12 rounded-2xl border flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${isLight ? 'bg-white border-slate-200 text-slate-400 hover:text-emerald-500 shadow-lg' : 'bg-black/95 border-emerald-500/30 text-emerald-500 shadow-2xl'}`}>
+                    <i className="fas fa-lock-open text-base"></i>
                   </button>
                </div>
              )}
            </div>
 
-           <div className="mt-16 flex flex-col w-full space-y-6">
+           <div className="mt-12 flex flex-col w-full space-y-4">
              <button 
                onClick={connectBluetooth}
                disabled={isBleConnected}
-               className={`w-full py-8 rounded-[2.5rem] font-black text-[15px] uppercase tracking-[0.2em] transition-all active:scale-95 flex items-center justify-center space-x-5 shadow-[0_25px_50px_rgba(79,70,229,0.3)] ${isBleConnected ? 'bg-emerald-500 text-slate-900' : 'bg-indigo-600 text-white hover:bg-indigo-500'}`}
+               className={`w-full py-6 rounded-[2rem] font-black text-[12px] xl:text-[13px] uppercase tracking-[0.15em] transition-all active:scale-95 flex items-center justify-center space-x-4 shadow-xl ${isBleConnected ? 'bg-emerald-500 text-slate-900' : 'bg-indigo-600 text-white hover:bg-indigo-500'}`}
              >
-               <i className={`fas ${isBleConnected ? 'fa-link animate-pulse' : 'fa-bluetooth-b'} text-2xl`}></i>
-               <span>{isBleConnected ? 'SYNC ACTIVE' : 'CONNECT ESP32'}</span>
+               <i className={`fas ${isBleConnected ? 'fa-link' : 'fa-bluetooth-b'} text-xl`}></i>
+               <span>{isBleConnected ? 'LINK ACTIVE' : 'CONNECT BIN'}</span>
              </button>
              
-             <div className={`p-8 rounded-[2.5rem] border ${isLight ? 'bg-emerald-50 border-emerald-100 shadow-sm' : 'bg-emerald-500/5 border-emerald-500/10'}`}>
-               <p className={`text-[12px] font-black uppercase tracking-widest leading-relaxed ${isLight ? 'text-emerald-700' : 'text-emerald-500/60'}`}>
-                 <i className="fas fa-microchip mr-3 opacity-50"></i>
-                 Kernel Version: GP-PRO 4.0
+             <div className={`p-6 rounded-[2rem] border ${isLight ? 'bg-emerald-50 border-emerald-100 shadow-sm' : 'bg-emerald-500/5 border-emerald-500/10'}`}>
+               <p className={`text-[10px] font-black uppercase tracking-widest leading-relaxed ${isLight ? 'text-emerald-700' : 'text-emerald-500/50'}`}>
+                 Protocol: GP-CORE v4.2
                </p>
              </div>
            </div>
         </div>
       </div>
 
-      {/* Impact Stats Grid - Spreads full width on PC */}
-      <div className={`p-12 md:p-20 rounded-[3rem] md:rounded-[4.5rem] border shadow-2xl transition-all duration-500 ${isLight ? 'bg-white border-slate-100' : 'bg-[#0f1115] border-white/5 glass'}`}>
-          <h3 className={`text-3xl md:text-5xl font-black mb-16 tracking-tighter uppercase flex items-center ${isLight ? 'text-slate-900' : 'text-white'}`}>
-            <i className="fas fa-earth-americas mr-6 text-emerald-500"></i> Planetary Footprint Update
+      {/* Impact Stats Grid - Professional scaled numbers */}
+      <div className={`p-10 md:p-12 xl:p-14 rounded-[2.5rem] md:rounded-[3.5rem] border shadow-2xl transition-all duration-500 ${isLight ? 'bg-white border-slate-100' : 'bg-[#0f1115] border-white/5 glass'}`}>
+          <h3 className={`text-2xl md:text-3xl font-black mb-12 tracking-tighter uppercase flex items-center ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            <i className="fas fa-globe-asia mr-4 text-emerald-500"></i> Global Impact Metrics
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16">
-            <ImpactStat label="Carbon Reduction" value={`${(user.bottles * 0.25).toFixed(2)} KG`} icon="fa-leaf" color="text-emerald-400" isLight={isLight} />
-            <ImpactStat label="Tier Position" value={rank.title} icon="fa-medal" color="text-amber-400" isLight={isLight} />
-            <ImpactStat label="Neural Energy" value={`${user.points.toLocaleString()} XP`} icon="fa-bolt-lightning" color="text-indigo-400" isLight={isLight} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            <ImpactStat label="Carbon Avoided" value={`${(user.bottles * 0.25).toFixed(2)} KG`} icon="fa-leaf" color="text-emerald-400" isLight={isLight} />
+            <ImpactStat label="Community Status" value={rank.title} icon="fa-medal" color="text-amber-400" isLight={isLight} />
+            <ImpactStat label="Total Energy Saved" value={`${user.points.toLocaleString()} XP`} icon="fa-bolt-lightning" color="text-indigo-400" isLight={isLight} />
           </div>
       </div>
     </div>
@@ -316,13 +292,13 @@ const UserPortalView: React.FC<UserPortalViewProps> = ({ user: initialUser, onUp
 };
 
 const ImpactStat: React.FC<{label: string; value: string; icon: string; color: string; isLight: boolean}> = ({label, value, icon, color, isLight}) => (
-  <div className={`p-10 md:p-16 rounded-[3.5rem] border flex items-center space-x-10 group transition-all duration-500 ${isLight ? 'bg-slate-50 border-slate-100 hover:bg-white hover:shadow-[0_40px_80px_rgba(0,0,0,0.05)]' : 'bg-[#05070a] border-white/5 hover:border-white/20 hover:bg-white/5'}`}>
-    <div className={`w-20 h-20 md:w-36 md:h-36 rounded-[2.5rem] bg-white/5 flex items-center justify-center text-4xl md:text-7xl ${color} transition-all duration-1000 group-hover:scale-110 group-hover:rotate-12`}>
+  <div className={`p-8 md:p-10 rounded-[2.5rem] border flex items-center space-x-8 group transition-all duration-500 ${isLight ? 'bg-slate-50 border-slate-100 hover:bg-white hover:shadow-2xl' : 'bg-[#05070a] border-white/5 hover:border-white/20 hover:bg-white/5'}`}>
+    <div className={`w-16 h-16 md:w-24 md:h-24 rounded-[2rem] bg-white/5 flex items-center justify-center text-3xl md:text-5xl ${color} transition-all duration-700 group-hover:scale-110`}>
       <i className={`fas ${icon}`}></i>
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-[12px] md:text-[16px] font-black text-slate-500 uppercase tracking-[0.4em] mb-4 truncate">{label}</p>
-      <p className={`text-3xl md:text-7xl font-black tracking-tighter mono leading-none truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{value}</p>
+      <p className="text-[10px] md:text-[12px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3 truncate">{label}</p>
+      <p className={`text-2xl md:text-4xl xl:text-5xl font-black tracking-tighter mono leading-none truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{value}</p>
     </div>
   </div>
 );

@@ -125,7 +125,7 @@ const App: React.FC = () => {
         <div className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm transition-opacity" onClick={() => setSidebarOpen(false)}></div>
       )}
 
-      {/* Sidebar - Fixed on Large Screens */}
+      {/* Sidebar - Proportional Width */}
       <div className={`fixed inset-y-0 left-0 z-50 transform lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Sidebar 
           activeView={activeView} 
@@ -137,39 +137,41 @@ const App: React.FC = () => {
         />
       </div>
       
-      {/* Main Content Area - Expansive Desktop Experience */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        {/* Modern Header - Edge to Edge with Balanced Padding */}
-        <header className={`flex items-center justify-between px-6 py-4 md:px-10 xl:px-16 md:py-6 border-b z-30 sticky top-0 backdrop-blur-md ${currentUser.theme === 'LIGHT' ? 'bg-white/80 border-slate-200 shadow-sm' : 'bg-[#05070a]/80 border-white/5'}`}>
-          <div className="flex items-center space-x-4">
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-white/5 border border-white/10 hover:bg-white/10">
-              <i className="fas fa-bars-staggered"></i>
-            </button>
-            <div className="flex flex-col">
-              <h1 className={`text-lg md:text-2xl xl:text-3xl font-black uppercase tracking-tighter ${currentUser.theme === 'LIGHT' ? 'text-slate-900' : 'text-white'}`}>
-                {activeView.replace('_', ' ')}
-              </h1>
-              <div className="flex items-center space-x-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <p className="text-[8px] md:text-[9px] xl:text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
-                  Active Session: {currentUser.id}
-                </p>
+      {/* Main Content Area - Optimized Scale */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative items-center">
+        {/* Modern Header - Balanced Width */}
+        <header className={`w-full flex items-center justify-center border-b z-30 sticky top-0 backdrop-blur-md ${currentUser.theme === 'LIGHT' ? 'bg-white/80 border-slate-200 shadow-sm' : 'bg-[#05070a]/80 border-white/5'}`}>
+          <div className="w-full max-w-[1600px] flex items-center justify-between px-6 py-4 md:px-10 md:py-5">
+            <div className="flex items-center space-x-4">
+              <button onClick={() => setSidebarOpen(true)} className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-white/5 border border-white/10 hover:bg-white/10">
+                <i className="fas fa-bars-staggered"></i>
+              </button>
+              <div className="flex flex-col">
+                <h1 className={`text-lg md:text-xl xl:text-2xl font-black uppercase tracking-tighter ${currentUser.theme === 'LIGHT' ? 'text-slate-900' : 'text-white'}`}>
+                  {activeView.replace('_', ' ')}
+                </h1>
+                <div className="flex items-center space-x-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                    Node Interface: {currentUser.id}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center space-x-3 md:space-x-8">
-            <div className="hidden sm:flex flex-col items-end">
-              <span className={`text-xs xl:text-sm font-black ${currentUser.theme === 'LIGHT' ? 'text-slate-800' : 'text-white'}`}>{currentUser.name}</span>
-              <span className={`text-[8px] xl:text-[9px] font-bold uppercase tracking-widest ${currentUser.role === 'ADMIN' ? 'text-indigo-500' : 'text-emerald-500'}`}>{currentUser.role} STATUS</span>
+            <div className="flex items-center space-x-3 md:space-x-6">
+              <div className="hidden sm:flex flex-col items-end">
+                <span className={`text-xs xl:text-sm font-black ${currentUser.theme === 'LIGHT' ? 'text-slate-800' : 'text-white'}`}>{currentUser.name}</span>
+                <span className={`text-[8px] font-bold uppercase tracking-widest ${currentUser.role === 'ADMIN' ? 'text-indigo-500' : 'text-emerald-500'}`}>{currentUser.role}</span>
+              </div>
+              <img src={displayAvatar} className={`w-10 h-10 md:w-11 md:h-11 rounded-2xl border-2 object-cover transition-transform hover:scale-105 cursor-pointer ${currentUser.theme === 'LIGHT' ? 'border-slate-100 bg-slate-100 shadow-md' : 'border-[#1e293b] bg-[#1e293b]'}`} alt="Profile" />
             </div>
-            <img src={displayAvatar} className={`w-10 h-10 md:w-14 md:h-14 rounded-2xl border-2 object-cover transition-transform hover:scale-105 cursor-pointer ${currentUser.theme === 'LIGHT' ? 'border-slate-100 bg-slate-100 shadow-md' : 'border-[#1e293b] bg-[#1e293b]'}`} alt="Profile" />
           </div>
         </header>
 
-        {/* Dynamic View Content - Full Responsive Space (No max-width) */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-10 lg:p-12 xl:p-16">
-          <div className="w-full">
+        {/* Dynamic View Content - Centered but Large Workspace */}
+        <div className="flex-1 w-full overflow-y-auto custom-scrollbar flex flex-col items-center">
+          <div className="w-full max-w-[1600px] p-4 md:p-8 xl:p-10">
             {renderView()}
           </div>
         </div>
